@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SQH Camera Scanner</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="camera-panel" aria-labelledby="page-title">
+        <div class="intro">
+          <p class="eyebrow">Standalone Camera Test</p>
+          <h1 id="page-title">SQH Camera Scanner</h1>
+          <p class="description">
+            หน้านี้ใช้ทดสอบการเปิดและปิดกล้องบนมือถือเท่านั้น ยังไม่มีระบบอ่าน QR และยังไม่เชื่อมต่อกับ Student Quest Hub
+          </p>
+        </div>
+
+        <div class="preview-frame" aria-label="พื้นที่แสดงภาพจากกล้อง">
+          <video id="cameraPreview" playsinline autoplay muted></video>
+          <div id="previewPlaceholder" class="preview-placeholder">
+            กล้องยังไม่เปิด
+          </div>
+        </div>
+
+        <div class="controls" aria-label="ปุ่มควบคุมกล้อง">
+          <button id="startCameraButton" class="primary-button" type="button">เปิดกล้อง</button>
+          <button id="stopCameraButton" class="secondary-button" type="button" disabled>ปิดกล้อง</button>
+        </div>
+
+        <section class="message-box" aria-labelledby="status-title">
+          <h2 id="status-title">สถานะ</h2>
+          <p id="cameraStatus" aria-live="polite">ปิดกล้องแล้ว</p>
+        </section>
+
+        <section class="message-box error-box" aria-labelledby="error-title">
+          <h2 id="error-title">ข้อความผิดพลาด</h2>
+          <p id="cameraError" aria-live="assertive">ยังไม่มีข้อผิดพลาด</p>
+        </section>
+      </section>
+    </main>
+
+    <script src="scanner.js"></script>
+  </body>
+</html>
