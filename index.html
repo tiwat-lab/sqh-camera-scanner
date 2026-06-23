@@ -13,12 +13,13 @@
           <p class="eyebrow">Standalone Camera Test</p>
           <h1 id="page-title">SQH Camera Scanner</h1>
           <p class="description">
-            หน้านี้ใช้ทดสอบการเปิดและปิดกล้องบนมือถือเท่านั้น ยังไม่มีระบบอ่าน QR และยังไม่เชื่อมต่อกับ Student Quest Hub
+            หน้านี้ใช้ทดสอบการเปิดกล้องและอ่าน QR บัตรนักเรียนแบบ standalone ยังไม่เชื่อมต่อกับ Student Quest Hub
           </p>
         </div>
 
         <div class="preview-frame" aria-label="พื้นที่แสดงภาพจากกล้อง">
           <video id="cameraPreview" playsinline autoplay muted></video>
+          <div class="scan-frame" aria-hidden="true"></div>
           <div id="previewPlaceholder" class="preview-placeholder">
             กล้องยังไม่เปิด
           </div>
@@ -27,11 +28,26 @@
         <div class="controls" aria-label="ปุ่มควบคุมกล้อง">
           <button id="startCameraButton" class="primary-button" type="button">เปิดกล้อง</button>
           <button id="stopCameraButton" class="secondary-button" type="button" disabled>ปิดกล้อง</button>
+          <button id="resetScanButton" class="secondary-button" type="button" disabled>สแกนใหม่</button>
         </div>
 
         <section class="message-box" aria-labelledby="status-title">
           <h2 id="status-title">สถานะ</h2>
           <p id="cameraStatus" aria-live="polite">ปิดกล้องแล้ว</p>
+        </section>
+
+        <section class="message-box result-box" aria-labelledby="result-title">
+          <h2 id="result-title">ผลลัพธ์</h2>
+          <dl class="result-list">
+            <div>
+              <dt>Payload</dt>
+              <dd id="qrPayload">ยังไม่มีข้อมูล</dd>
+            </div>
+            <div>
+              <dt>StudentId</dt>
+              <dd id="studentId">ยังไม่มีข้อมูล</dd>
+            </div>
+          </dl>
         </section>
 
         <section class="message-box error-box" aria-labelledby="error-title">
@@ -41,6 +57,7 @@
       </section>
     </main>
 
+    <script src="vendor/jsQR.min.js"></script>
     <script src="scanner.js"></script>
   </body>
 </html>
