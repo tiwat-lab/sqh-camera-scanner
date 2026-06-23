@@ -15,6 +15,7 @@
           <p class="description">
             หน้านี้ใช้ทดสอบการเปิดกล้องและอ่าน QR บัตรนักเรียนแบบ standalone ยังไม่เชื่อมต่อกับ Student Quest Hub
           </p>
+          <p id="integrationModeStatus" class="mode-status">โหมดทดสอบอิสระ</p>
         </div>
 
         <div class="preview-frame" aria-label="พื้นที่แสดงภาพจากกล้อง">
@@ -39,6 +40,14 @@
         <section class="message-box result-box" aria-labelledby="result-title">
           <h2 id="result-title">ผลลัพธ์</h2>
           <dl class="result-list">
+            <div>
+              <dt>โหมด</dt>
+              <dd id="scanMode">โหมดทดสอบอิสระ</dd>
+            </div>
+            <div>
+              <dt>ปลายทาง</dt>
+              <dd id="targetOrigin">ไม่มี</dd>
+            </div>
             <div>
               <dt>Payload</dt>
               <dd id="qrPayload">ยังไม่มีข้อมูล</dd>

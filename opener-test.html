@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SQH Camera Scanner Opener Test</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="camera-panel" aria-labelledby="page-title">
+        <div class="intro">
+          <p class="eyebrow">Message Contract Test</p>
+          <h1 id="page-title">Scanner Opener Test</h1>
+          <p class="description">
+            หน้านี้ใช้ทดสอบการรับ message จาก SQH Camera Scanner เท่านั้น ไม่ใช่ Student Quest Hub จริง
+          </p>
+        </div>
+
+        <div class="controls">
+          <button id="openScannerButton" class="primary-button" type="button">เปิด Scanner</button>
+        </div>
+
+        <section class="message-box" aria-labelledby="status-title">
+          <h2 id="status-title">สถานะ</h2>
+          <p id="testStatus" aria-live="polite">ยังไม่ได้เปิด Scanner</p>
+        </section>
+
+        <section class="message-box result-box" aria-labelledby="message-title">
+          <h2 id="message-title">Message ที่ได้รับ</h2>
+          <dl class="result-list">
+            <div>
+              <dt>source</dt>
+              <dd id="messageSource">ยังไม่มีข้อมูล</dd>
+            </div>
+            <div>
+              <dt>version</dt>
+              <dd id="messageVersion">ยังไม่มีข้อมูล</dd>
+            </div>
+            <div>
+              <dt>type</dt>
+              <dd id="messageType">ยังไม่มีข้อมูล</dd>
+            </div>
+            <div>
+              <dt>StudentId</dt>
+              <dd id="messageStudentId">ยังไม่มีข้อมูล</dd>
+            </div>
+            <div>
+              <dt>Payload</dt>
+              <dd id="messagePayload">ยังไม่มีข้อมูล</dd>
+            </div>
+            <div>
+              <dt>scannedAt</dt>
+              <dd id="messageScannedAt">ยังไม่มีข้อมูล</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="message-box error-box" aria-labelledby="error-title">
+          <h2 id="error-title">ข้อความผิดพลาด</h2>
+          <p id="testError" aria-live="assertive">ยังไม่มีข้อผิดพลาด</p>
+        </section>
+      </section>
+    </main>
+
+    <script src="opener-test.js"></script>
+  </body>
+</html>

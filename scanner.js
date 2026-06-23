@@ -9,6 +9,9 @@ const cameraStatus = document.getElementById("cameraStatus");
 const cameraError = document.getElementById("cameraError");
 const qrPayload = document.getElementById("qrPayload");
 const studentId = document.getElementById("studentId");
+const integrationModeStatus = document.getElementById("integrationModeStatus");
+const scanMode = document.getElementById("scanMode");
+const targetOrigin = document.getElementById("targetOrigin");
 
 let currentStream = null;
 let isRequestingCamera = false;
@@ -26,6 +29,12 @@ let lastPayload = "";
 let lastPayloadAt = 0;
 let hasScanSuccess = false;
 let hasShownDecoderError = false;
+let integrationMode = {
+  isEnabled: false,
+  targetOrigin: "",
+  hasInvalidConfig: false
+};
+let hasPostedCurrentScan = false;
 
 const scanIntervalMs = 160;
 const duplicateCooldownMs = 1500;
@@ -44,6 +53,26 @@ function clearError() {
   setError("ยังไม่มีข้อผิดพลาด");
 }
 
+function setModeDisplay() {
+  if (integrationMode.hasInvalidConfig) {
+    integrationModeStatus.textContent = "โหมดเชื่อมต่อ Student Quest Hub ไม่พร้อมใช้งาน";
+    scanMode.textContent = "โหมดเชื่อมต่อไม่พร้อมใช้งาน";
+    targetOrigin.textContent = "origin ไม่ถูกต้อง";
+    return;
+  }
+
+  if (integrationMode.isEnabled) {
+    integrationModeStatus.textContent = "โหมดเชื่อมต่อ Student Quest Hub";
+    scanMode.textContent = "โหมดเชื่อมต่อ Student Quest Hub";
+    targetOrigin.textContent = integrationMode.targetOrigin;
+    return;
+  }
+
+  integrationModeStatus.textContent = "โหมดทดสอบอิสระ";
+  scanMode.textContent = "โหมดทดสอบอิสระ";
+  targetOrigin.textContent = "ไม่มี";
+}
+
 function setScanResult(payload, parsedStudentId) {
   qrPayload.textContent = payload || "ยังไม่มีข้อมูล";
   studentId.textContent = parsedStudentId || "ยังไม่มีข้อมูล";
@@ -54,6 +83,7 @@ function resetScanResult() {
   lastPayloadAt = 0;
   hasScanSuccess = false;
   hasShownDecoderError = false;
+  hasPostedCurrentScan = false;
   setScanResult("", "");
 
   if (currentStream) {
@@ -103,6 +133,64 @@ function isCameraSupported() {
     navigator.mediaDevices &&
       typeof navigator.mediaDevices.getUserMedia === "function"
   );
+}
+
+function isLocalHttpOrigin(url) {
+  return (
+    url.protocol === "http:" &&
+    (url.hostname === "localhost" || url.hostname === "127.0.0.1")
+  );
+}
+
+function getValidatedTargetOrigin(originValue) {
+  if (!originValue) {
+    return "";
+  }
+
+  try {
+    const parsedOrigin = new URL(originValue);
+
+    if (parsedOrigin.username || parsedOrigin.password) {
+      return "";
+    }
+
+    if (parsedOrigin.protocol === "https:" || isLocalHttpOrigin(parsedOrigin)) {
+      return parsedOrigin.origin;
+    }
+  } catch (error) {
+    return "";
+  }
+
+  return "";
+}
+
+function setupIntegrationMode() {
+  const params = new URLSearchParams(window.location.search);
+
+  if (params.get("mode") !== "sqh") {
+    setModeDisplay();
+    return;
+  }
+
+  const validatedTargetOrigin = getValidatedTargetOrigin(params.get("origin"));
+
+  if (!validatedTargetOrigin) {
+    integrationMode = {
+      isEnabled: false,
+      targetOrigin: "",
+      hasInvalidConfig: true
+    };
+    setModeDisplay();
+    setError("ค่า origin สำหรับโหมดเชื่อมต่อไม่ถูกต้อง จึงปิด integration mode");
+    return;
+  }
+
+  integrationMode = {
+    isEnabled: true,
+    targetOrigin: validatedTargetOrigin,
+    hasInvalidConfig: false
+  };
+  setModeDisplay();
 }
 
 async function setupBarcodeDetector() {
@@ -222,11 +310,52 @@ function handleDecodedPayload(rawPayload) {
   setScanResult(result.payload, result.studentId);
 
   if (result.isValid) {
+    const wasPosted = postScanResultToOpener(result);
     hasScanSuccess = true;
     stopScanLoop();
-    clearError();
+    if (!integrationMode.isEnabled || wasPosted) {
+      clearError();
+    }
   } else {
     setError(result.message);
+  }
+}
+
+function createScanMessage(result) {
+  const validatedPayload = `${validPayloadPrefix}${result.studentId}`;
+
+  return {
+    source: "SQH_CAMERA_SCANNER",
+    version: 1,
+    type: "SQH_STUDENT_SCANNED",
+    studentId: result.studentId,
+    payload: validatedPayload,
+    scannedAt: new Date().toISOString()
+  };
+}
+
+function postScanResultToOpener(result) {
+  if (!integrationMode.isEnabled || hasPostedCurrentScan) {
+    return false;
+  }
+
+  if (!window.opener || window.opener.closed === true) {
+    setError("ไม่พบหน้าต่าง Student Quest Hub ที่เปิด Scanner");
+    return false;
+  }
+
+  hasPostedCurrentScan = true;
+
+  try {
+    window.opener.postMessage(
+      createScanMessage(result),
+      integrationMode.targetOrigin
+    );
+    setStatus("ส่งข้อความรหัสนักเรียนออกไปยัง Student Quest Hub แล้ว");
+    return true;
+  } catch (error) {
+    setError("ไม่สามารถส่งรหัสนักเรียนกลับสู่ Student Quest Hub ได้");
+    return false;
   }
 }
 
@@ -351,6 +480,7 @@ function startScanLoop() {
   lastPayloadAt = 0;
   hasScanSuccess = false;
   hasShownDecoderError = false;
+  hasPostedCurrentScan = false;
   setStatus("กำลังค้นหา QR");
   scanFrameId = window.requestAnimationFrame(scanNextFrame);
 }
@@ -438,5 +568,6 @@ resetScanButton.addEventListener("click", () => {
 window.addEventListener("pagehide", stopCamera);
 window.addEventListener("beforeunload", stopCamera);
 
+setupIntegrationMode();
 setScanResult("", "");
 setControlsForCamera(false);
